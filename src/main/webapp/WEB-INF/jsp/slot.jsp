@@ -19,15 +19,9 @@
     <c:if test="${not empty reels}">
         <div class="slots-display">
             <c:forEach var="s" items="${reels}">
-                <div class="reel ${payout > 0 ? 'reel-win spin' : 'spin'}">
-                    <c:choose>
-                        <c:when test="${s == 'CHERRY'}">🍒</c:when>
-                        <c:when test="${s == 'LEMON'}">🍋</c:when>
-                        <c:when test="${s == 'BELL'}">🔔</c:when>
-                        <c:when test="${s == 'STAR'}">⭐</c:when>
-                        <c:when test="${s == 'SEVEN'}">7️⃣</c:when>
-                    </c:choose>
-                </div>
+                <%-- FIX: используем s.emoji (вызывает getEmoji()) вместо c:choose с ==,
+                     т.к. EL не умеет надёжно сравнивать enum со строковым литералом --%>
+                <div class="reel ${payout > 0 ? 'reel-win spin' : 'spin'}">${s.emoji}</div>
             </c:forEach>
         </div>
         <c:choose>
@@ -50,7 +44,9 @@
 
     <form method="post" action="${pageContext.request.contextPath}/game/slot">
         <div class="bet-row">
-            <input class="form-input" name="bet" type="number" step="0.01" min="0.01" value="${not empty lastBet ? lastBet : 10}" required placeholder="Ставка">
+            <input class="form-input" name="bet" type="number" step="0.01" min="0.01"
+                   value="${not empty sessionScope.slotLastBet ? sessionScope.slotLastBet : 10}"
+                   required placeholder="Ставка">
             <button class="btn btn-gold" type="submit">🎰 Spin!</button>
         </div>
     </form>

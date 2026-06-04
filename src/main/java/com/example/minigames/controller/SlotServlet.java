@@ -22,6 +22,8 @@ public class SlotServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // При входе на страницу — сбрасываем сохранённую ставку к 10
+        req.getSession().removeAttribute("slotLastBet");
         req.getRequestDispatcher("/WEB-INF/jsp/slot.jsp").forward(req, resp);
     }
 
@@ -30,6 +32,9 @@ public class SlotServlet extends HttpServlet {
         User u = (User) req.getSession().getAttribute("user");
         try {
             BigDecimal bet = new BigDecimal(req.getParameter("bet"));
+            // FIX: сохраняем ставку в сессию, чтобы JSP мог подставить её обратно
+            req.getSession().setAttribute("slotLastBet", bet);
+
             SlotEngine.Spin spin = engine.spin(bet);
             String result = String.join(" | ",
                     spin.reels[0].name(), spin.reels[1].name(), spin.reels[2].name());

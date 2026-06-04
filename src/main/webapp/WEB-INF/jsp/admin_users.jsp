@@ -17,9 +17,13 @@
                 <td>${u.id}</td><td>${u.username}</td><td>${u.role}</td>
                 <td>${u.balance}</td><td>${u.active}</td><td>${u.createdAt}</td>
                 <td>
+                    <%--
+                        FIX: убран скрытый input "active" — EL не поддерживает !boolean в value,
+                        поэтому туда всегда попадала строка "false" или пустота.
+                        Теперь AdminServlet сам читает текущий статус из БД и инвертирует его.
+                    --%>
                     <form method="post" action="${pageContext.request.contextPath}/admin/toggle">
                         <input type="hidden" name="id" value="${u.id}">
-                        <input type="hidden" name="active" value="${!u.active}">
                         <button type="submit">${u.active ? 'Заблокировать' : 'Разблокировать'}</button>
                     </form>
                 </td>

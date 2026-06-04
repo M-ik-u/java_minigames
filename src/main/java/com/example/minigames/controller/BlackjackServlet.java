@@ -24,6 +24,8 @@ public class BlackjackServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // При входе на страницу — сбрасываем сохранённую ставку к 10
+        req.getSession().removeAttribute("bjLastBet");
         forward(req, resp);
     }
 
@@ -34,7 +36,7 @@ public class BlackjackServlet extends HttpServlet {
         try {
             switch (action) {
                 case "deal" -> startRound(req, u);
-                case "hit" -> hit(req);
+                case "hit"  -> hit(req);
                 case "stand" -> stand(req);
                 case "double" -> doubleDown(req, u);
             }
@@ -58,6 +60,9 @@ public class BlackjackServlet extends HttpServlet {
         BigDecimal bet = new BigDecimal(req.getParameter("bet"));
         if (bet.signum() <= 0) throw new IllegalArgumentException("Ставка должна быть положительной");
         if (u.getBalance().compareTo(bet) < 0) throw new IllegalArgumentException("Недостаточно средств");
+
+        // FIX: сохраняем ставку в сессию
+        req.getSession().setAttribute("bjLastBet", bet);
 
         BlackjackRound r = new BlackjackRound(engine.newDeck(), bet);
         r.player.add(r.draw());

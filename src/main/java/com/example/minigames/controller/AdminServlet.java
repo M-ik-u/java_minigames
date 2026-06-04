@@ -53,8 +53,13 @@ public class AdminServlet extends HttpServlet {
         }
         try (Connection c = Db.conn()) {
             long id = Long.parseLong(req.getParameter("id"));
-            boolean active = "true".equals(req.getParameter("active"));
-            users.setActive(c, id, active);
+            // FIX: читаем актуальный статус из БД и инвертируем его.
+            // Нельзя доверять значению из формы — EL не вычисляет !boolean корректно
+            // в атрибуте value, поэтому туда всегда приходила строка "false".
+            boolean currentlyActive = users.findById(c, id)
+                    .map(u -> u.isActive())
+                    .orElse(true);
+            users.setActive(c, id, !currentlyActive);
         } catch (SQLException e) {
             throw new ServletException(e);
         }

@@ -34,33 +34,51 @@
         </div>
     </c:if>
 
+    <%--
+        FIX: поля ставок теперь берут значения из sessionScope.roulLastBets.
+        При первом открытии страницы roulLastBets == null → все поля пустые (placeholder).
+        После спина сервлет сохраняет введённые суммы в сессию и JSP их восстанавливает.
+        При переходе на другую страницу и возврате — doGet очищает roulLastBets → поля снова пустые.
+    --%>
     <form method="post" action="${pageContext.request.contextPath}/game/roulette">
         <div class="bet-grid">
             <div class="bet-field">
                 <span class="bet-icon">🔴</span>
                 <span class="bet-label">Красное ×2</span>
-                <input class="form-input" name="amount_red" type="number" step="0.01" min="0" placeholder="0">
+                <input class="form-input" name="amount_red" type="number" step="0.01" min="0"
+                       value="${not empty sessionScope.roulLastBets ? sessionScope.roulLastBets.red : ''}"
+                       placeholder="0">
             </div>
             <div class="bet-field">
                 <span class="bet-icon">⚫</span>
                 <span class="bet-label">Чёрное ×2</span>
-                <input class="form-input" name="amount_black" type="number" step="0.01" min="0" placeholder="0">
+                <input class="form-input" name="amount_black" type="number" step="0.01" min="0"
+                       value="${not empty sessionScope.roulLastBets ? sessionScope.roulLastBets.black : ''}"
+                       placeholder="0">
             </div>
             <div class="bet-field">
                 <span class="bet-icon">2️⃣</span>
                 <span class="bet-label">Чётное ×2</span>
-                <input class="form-input" name="amount_even" type="number" step="0.01" min="0" placeholder="0">
+                <input class="form-input" name="amount_even" type="number" step="0.01" min="0"
+                       value="${not empty sessionScope.roulLastBets ? sessionScope.roulLastBets.even : ''}"
+                       placeholder="0">
             </div>
             <div class="bet-field">
                 <span class="bet-icon">1️⃣</span>
                 <span class="bet-label">Нечётное ×2</span>
-                <input class="form-input" name="amount_odd" type="number" step="0.01" min="0" placeholder="0">
+                <input class="form-input" name="amount_odd" type="number" step="0.01" min="0"
+                       value="${not empty sessionScope.roulLastBets ? sessionScope.roulLastBets.odd : ''}"
+                       placeholder="0">
             </div>
             <div class="bet-number-row">
                 <span class="bet-icon">🎯</span>
                 <span class="bet-label">Число (0–36) ×36</span>
-                <input class="form-input" name="number" type="number" min="0" max="36" placeholder="0–36">
-                <input class="form-input" name="amount_number" type="number" step="0.01" min="0" placeholder="Ставка">
+                <input class="form-input" name="number" type="number" min="0" max="36"
+                       value="${not empty sessionScope.roulLastBets ? sessionScope.roulLastBets.number : ''}"
+                       placeholder="0–36">
+                <input class="form-input" name="amount_number" type="number" step="0.01" min="0"
+                       value="${not empty sessionScope.roulLastBets ? sessionScope.roulLastBets.amountNumber : ''}"
+                       placeholder="Ставка">
             </div>
         </div>
         <button class="btn btn-gold" type="submit">🎡 Крутить!</button>

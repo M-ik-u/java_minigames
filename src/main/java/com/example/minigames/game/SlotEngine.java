@@ -6,14 +6,29 @@ import java.util.Map;
 import java.util.Random;
 
 public class SlotEngine {
-    public enum Symbol { CHERRY, LEMON, BELL, STAR, SEVEN }
+
+    public enum Symbol {
+        CHERRY, LEMON, BELL, STAR, SEVEN;
+
+        // FIX: EL не умеет сравнивать enum со строкой через ==,
+        // поэтому JSP использует ${s.emoji} вместо <c:choose> с s == 'CHERRY' и т.д.
+        public String getEmoji() {
+            return switch (this) {
+                case CHERRY -> "🍒";
+                case LEMON  -> "🍋";
+                case BELL   -> "🔔";
+                case STAR   -> "⭐";
+                case SEVEN  -> "7️⃣";
+            };
+        }
+    }
 
     private static final Map<Symbol, Integer> PAYOUT = Map.of(
-            Symbol.SEVEN, 50,
-            Symbol.STAR, 20,
-            Symbol.BELL, 10,
-            Symbol.LEMON, 5,
-            Symbol.CHERRY, 3
+            Symbol.SEVEN,  50,
+            Symbol.STAR,   20,
+            Symbol.BELL,   10,
+            Symbol.LEMON,   5,
+            Symbol.CHERRY,  3
     );
 
     private final Random rng;

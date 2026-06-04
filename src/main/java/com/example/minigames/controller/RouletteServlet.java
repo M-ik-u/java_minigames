@@ -26,6 +26,7 @@ public class RouletteServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getSession().removeAttribute("roulLastBets");
         req.getRequestDispatcher("/WEB-INF/jsp/roulette.jsp").forward(req, resp);
     }
 
@@ -33,17 +34,25 @@ public class RouletteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User u = (User) req.getSession().getAttribute("user");
         try {
+            String amtRed    = req.getParameter("amount_red");
+            String amtBlack  = req.getParameter("amount_black");
+            String amtEven   = req.getParameter("amount_even");
+            String amtOdd    = req.getParameter("amount_odd");
+            String amtNumber = req.getParameter("amount_number");
+            String numStr    = req.getParameter("number");
+
+            req.getSession().setAttribute("roulLastBets",
+                    new RouletteLastBets(amtRed, amtBlack, amtEven, amtOdd, amtNumber, numStr));
+
             List<Bet> bets = new ArrayList<>();
-            addBet(bets, BetType.RED, req.getParameter("amount_red"), null);
-            addBet(bets, BetType.BLACK, req.getParameter("amount_black"), null);
-            addBet(bets, BetType.EVEN, req.getParameter("amount_even"), null);
-            addBet(bets, BetType.ODD, req.getParameter("amount_odd"), null);
-            String numAmt = req.getParameter("amount_number");
-            String numStr = req.getParameter("number");
-            if (numAmt != null && !numAmt.isBlank() && numStr != null && !numStr.isBlank()) {
+            addBet(bets, BetType.RED,   amtRed,   null);
+            addBet(bets, BetType.BLACK, amtBlack, null);
+            addBet(bets, BetType.EVEN,  amtEven,  null);
+            addBet(bets, BetType.ODD,   amtOdd,   null);
+            if (amtNumber != null && !amtNumber.isBlank() && numStr != null && !numStr.isBlank()) {
                 int n = Integer.parseInt(numStr);
                 if (n < 0 || n > 36) throw new IllegalArgumentException("Номер должен быть в диапазоне 0..36");
-                addBet(bets, BetType.NUMBER, numAmt, n);
+                addBet(bets, BetType.NUMBER, amtNumber, n);
             }
             if (bets.isEmpty()) throw new IllegalArgumentException("Не сделано ни одной ставки");
 
@@ -76,5 +85,38 @@ public class RouletteServlet extends HttpServlet {
             User fresh = users.findById(c, u.getId()).orElse(u);
             req.getSession().setAttribute("user", fresh);
         }
+    }
+
+    /**
+     * FIX: поля должны быть private + геттеры, иначе EL (Jakarta Expression Language)
+     * не может найти свойство — он ищет методы getRed(), getBlack() и т.д.,
+     * а не обращается напрямую к public-полям.
+     */
+    public static class RouletteLastBets {
+        private final String red;
+        private final String black;
+        private final String even;
+        private final String odd;
+        private final String amountNumber;
+        private final String number;
+
+        public RouletteLastBets(String red, String black, String even, String odd,
+                                String amountNumber, String number) {
+            this.red          = nvl(red);
+            this.black        = nvl(black);
+            this.even         = nvl(even);
+            this.odd          = nvl(odd);
+            this.amountNumber = nvl(amountNumber);
+            this.number       = nvl(number);
+        }
+
+        public String getRed()          { return red; }
+        public String getBlack()        { return black; }
+        public String getEven()         { return even; }
+        public String getOdd()          { return odd; }
+        public String getAmountNumber() { return amountNumber; }
+        public String getNumber()       { return number; }
+
+        private static String nvl(String s) { return s == null ? "" : s; }
     }
 }

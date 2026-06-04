@@ -48,7 +48,10 @@
             <form method="post" action="${pageContext.request.contextPath}/game/blackjack">
                 <input type="hidden" name="action" value="deal">
                 <div class="bet-row">
-                    <input class="form-input" name="bet" type="number" step="0.01" min="0.01" value="10" required placeholder="Ставка">
+                    <%-- FIX: берём последнюю ставку из сессии; если нет — 10 --%>
+                    <input class="form-input" name="bet" type="number" step="0.01" min="0.01"
+                           value="${not empty sessionScope.bjLastBet ? sessionScope.bjLastBet : 10}"
+                           required placeholder="Ставка">
                     <button class="btn btn-gold" type="submit">🃏 Раздать карты</button>
                 </div>
             </form>
